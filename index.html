@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="bn"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>Certificate যাচাই</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f5f8;--card:#fff;--ink:#14213d;--muted:#64708a;--line:#e2e7ef;--brand:#0f4c81}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1522;--card:#161f31;--ink:#e8edf6;--muted:#93a0b8;--line:#25314a;--brand:#5aa3e6}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hind Siliguri","Noto Sans Bengali","Segoe UI",sans-serif;line-height:1.6;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
+.card{max-width:520px;width:100%;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:28px 20px;text-align:center}
+.icon{font-size:46px}
+h1{font-size:22px;margin:8px 0}
+p{margin:6px 0;color:var(--muted)}
+.hours{margin:14px 0;padding:12px;border:1px dashed var(--line);border-radius:12px;color:var(--ink);font-weight:600}
+button{margin-top:10px;padding:12px 22px;font:inherit;font-size:16px;font-weight:600;border:0;border-radius:12px;background:var(--brand);color:#fff;cursor:pointer}
+</style></head>
+<body>
+<div class="card">
+  <div class="icon" id="icon">⏳</div>
+  <h1 id="title">সংযোগ যাচাই করা হচ্ছে...</h1>
+  <p id="msg"></p>
+  <div class="hours" id="hours" hidden>সেবার সময়: প্রতিদিন সকাল ৯টা থেকে বিকেল ৪টা পর্যন্ত</div>
+  <button id="retry" hidden type="button">আবার চেষ্টা করুন</button>
+</div>
+
+<script>
+// ===== এই দুটি মান বদলান =====
+var SERVER = "https://anwar.tail6ab506.ts.net";
+var KEY = "CHANGE_ME_random_key";
+// ==============================
+
+var $ = function(id){ return document.getElementById(id); };
+
+function closed(text){
+  $('icon').textContent = '🔒';
+  $('title').textContent = 'সেবা এই মুহূর্তে বন্ধ আছে';
+  $('msg').textContent = text || 'অনুগ্রহ করে নির্ধারিত সময়ে আবার চেষ্টা করুন।';
+  $('hours').hidden = false;
+  $('retry').hidden = false;
+}
+
+function check(){
+  $('icon').textContent = '⏳';
+  $('title').textContent = 'সংযোগ যাচাই করা হচ্ছে...';
+  $('msg').textContent = '';
+  $('hours').hidden = true;
+  $('retry').hidden = true;
+
+  var ctl = new AbortController();
+  var timer = setTimeout(function(){ ctl.abort(); }, 7000);
+
+  fetch(SERVER + '/ping', { cache: 'no-store', signal: ctl.signal })
+    .then(function(r){ if (!r.ok) throw 0; return r.json(); })
+    .then(function(j){
+      clearTimeout(timer);
+      if (j.open) {
+        $('icon').textContent = '✅';
+        $('title').textContent = 'সেবা চালু আছে';
+        $('msg').textContent = 'Certificate পেজে নেওয়া হচ্ছে...';
+        location.replace(SERVER + '/?key=' + encodeURIComponent(KEY));
+      } else {
+        closed('সেবা শুধু সকাল ৯টা থেকে বিকেল ৪টা পর্যন্ত খোলা থাকে।');
+      }
+    })
+    .catch(function(){
+      clearTimeout(timer);
+      closed('সার্ভার এখন বন্ধ আছে। সকাল ৯টা থেকে বিকেল ৪টার মধ্যে আবার চেষ্টা করুন।');
+    });
+}
+
+$('retry').addEventListener('click', check);
+check();
+</script>
+</body></html>
