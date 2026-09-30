@@ -29,7 +29,7 @@ button{margin-top:10px;padding:12px 22px;font:inherit;font-size:16px;font-weight
 <script>
 // ===== এই দুটি মান বদলান =====
 var SERVER = "https://anwar.tail6ab506.ts.net";
-var KEY = "CHANGE_ME_random_key";
+var KEY = "12345";
 // ==============================
 
 var $ = function(id){ return document.getElementById(id); };
@@ -62,12 +62,12 @@ function check(){
         $('msg').textContent = 'Certificate পেজে নেওয়া হচ্ছে...';
         location.replace(SERVER + '/?key=' + encodeURIComponent(KEY));
       } else {
-        closed('সেবা শুধু সকাল ৯টা থেকে বিকেল ৪টা পর্যন্ত খোলা থাকে।');
+        closed('সেবা শুধু সকাল ৯.৩০টা থেকে বিকেল ৪টা পর্যন্ত খোলা থাকে।');
       }
     })
     .catch(function(){
       clearTimeout(timer);
-      closed('সার্ভার এখন বন্ধ আছে। সকাল ৯টা থেকে বিকেল ৪টার মধ্যে আবার চেষ্টা করুন।');
+      closed('সার্ভার এখন বন্ধ আছে। সকাল ৯.৩০টা থেকে বিকেল ৪টার মধ্যে আবার চেষ্টা করুন।');
     });
 }
 
