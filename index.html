@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="bn">
 <head>
@@ -27,23 +26,22 @@
             box-shadow: 0 5px 25px rgba(0,0,0,0.12);
         }
 
-        .loading {
+        #loading {
             font-size: 20px;
             color: #333;
         }
 
-        .offline {
+        #offline {
             display: none;
         }
 
-        .offline h2 {
+        #offline h2 {
             color: #d32f2f;
-            margin-bottom: 10px;
         }
 
-        .offline p {
+        #offline p {
             color: #555;
-            font-size: 16px;
+            line-height: 1.7;
         }
 
         button {
@@ -56,10 +54,6 @@
             font-size: 16px;
             cursor: pointer;
         }
-
-        button:hover {
-            background: #125ca8;
-        }
     </style>
 </head>
 
@@ -67,19 +61,20 @@
 
 <div class="box">
 
-    <div id="loading" class="loading">
-        সার্ভারের সাথে সংযোগ করা হচ্ছে...
+    <div id="loading">
+        ⏳ সার্ভারের সাথে সংযোগ করা হচ্ছে...
     </div>
 
-    <div id="offline" class="offline">
+    <div id="offline">
         <h2>⚠️ সার্ভার বন্ধ আছে</h2>
+
         <p>
             SICIP Certificate Server বর্তমানে চালু নেই
             অথবা সার্ভারে সংযোগ করা যাচ্ছে না।
         </p>
 
         <button onclick="checkServer()">
-            আবার চেষ্টা করুন
+            🔄 আবার চেষ্টা করুন
         </button>
     </div>
 
@@ -89,33 +84,59 @@
 
 const SERVER = "https://anwar.tail6ab506.ts.net:8443/";
 
+/*
+   সার্ভারের একটি নির্দিষ্ট পেজে সংযোগ পরীক্ষা।
+   সার্ভার চালু থাকলে redirect হবে।
+   সার্ভার বন্ধ থাকলে এখানেই থাকবে।
+*/
 function checkServer() {
 
-    document.getElementById("loading").style.display = "block";
-    document.getElementById("offline").style.display = "none";
+    const loading = document.getElementById("loading");
+    const offline = document.getElementById("offline");
 
-    /*
-     * no-cors ব্যবহার করা হয়েছে যাতে CORS-এর কারণে
-     * সার্ভার চালু থাকা অবস্থায় ভুলভাবে বন্ধ দেখানো না হয়।
-     */
+    loading.style.display = "block";
+    offline.style.display = "none";
+
+    const controller = new AbortController();
+
+    // সর্বোচ্চ 5 সেকেন্ড অপেক্ষা করবে
+    const timeout = setTimeout(() => {
+        controller.abort();
+    }, 5000);
+
     fetch(SERVER, {
         method: "GET",
-        mode: "no-cors",
-        cache: "no-store"
+        cache: "no-store",
+        signal: controller.signal
     })
-    .then(() => {
+    .then(response => {
 
-        // সার্ভারে পৌঁছানো গেলে মূল ওয়েব পেজে নিয়ে যাবে
-        window.location.replace(SERVER);
+        clearTimeout(timeout);
 
+        if (response.ok) {
+
+            // সার্ভার চালু → মূল Webpage
+            window.location.replace(SERVER);
+
+        } else {
+
+            // সার্ভার উত্তর দিয়েছে কিন্তু সমস্যা আছে
+            showOffline();
+        }
     })
-    .catch(() => {
+    .catch(error => {
 
-        // সার্ভারে পৌঁছাতে না পারলে বন্ধের মেসেজ
-        document.getElementById("loading").style.display = "none";
-        document.getElementById("offline").style.display = "block";
+        clearTimeout(timeout);
 
+        // সার্ভারে সংযোগ করা যায়নি
+        showOffline();
     });
+}
+
+function showOffline() {
+
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("offline").style.display = "block";
 }
 
 checkServer();
@@ -124,4 +145,3 @@ checkServer();
 
 </body>
 </html>
-```
