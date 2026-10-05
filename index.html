@@ -1,20 +1,127 @@
+```html
 <!DOCTYPE html>
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SICIP Certificate Server</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f6f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .box {
+            background: white;
+            width: 90%;
+            max-width: 450px;
+            padding: 35px 25px;
+            text-align: center;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.12);
+        }
+
+        .loading {
+            font-size: 20px;
+            color: #333;
+        }
+
+        .offline {
+            display: none;
+        }
+
+        .offline h2 {
+            color: #d32f2f;
+            margin-bottom: 10px;
+        }
+
+        .offline p {
+            color: #555;
+            font-size: 16px;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 8px;
+            background: #1976d2;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #125ca8;
+        }
+    </style>
 </head>
 
 <body>
 
+<div class="box">
+
+    <div id="loading" class="loading">
+        সার্ভারের সাথে সংযোগ করা হচ্ছে...
+    </div>
+
+    <div id="offline" class="offline">
+        <h2>⚠️ সার্ভার বন্ধ আছে</h2>
+        <p>
+            SICIP Certificate Server বর্তমানে চালু নেই
+            অথবা সার্ভারে সংযোগ করা যাচ্ছে না।
+        </p>
+
+        <button onclick="checkServer()">
+            আবার চেষ্টা করুন
+        </button>
+    </div>
+
+</div>
+
 <script>
-    window.location.href =
-        "https://anwar.tail6ab506.ts.net:8443/";
+
+const SERVER = "https://anwar.tail6ab506.ts.net:8443/";
+
+function checkServer() {
+
+    document.getElementById("loading").style.display = "block";
+    document.getElementById("offline").style.display = "none";
+
+    /*
+     * no-cors ব্যবহার করা হয়েছে যাতে CORS-এর কারণে
+     * সার্ভার চালু থাকা অবস্থায় ভুলভাবে বন্ধ দেখানো না হয়।
+     */
+    fetch(SERVER, {
+        method: "GET",
+        mode: "no-cors",
+        cache: "no-store"
+    })
+    .then(() => {
+
+        // সার্ভারে পৌঁছানো গেলে মূল ওয়েব পেজে নিয়ে যাবে
+        window.location.replace(SERVER);
+
+    })
+    .catch(() => {
+
+        // সার্ভারে পৌঁছাতে না পারলে বন্ধের মেসেজ
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("offline").style.display = "block";
+
+    });
+}
+
+checkServer();
+
 </script>
 
 </body>
 </html>
+```
