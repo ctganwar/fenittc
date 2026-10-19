@@ -83,66 +83,25 @@
 </div>
 
 <script>
-
 const SERVER = "https://anwar.tail6ab506.ts.net:10000/certificate";
 
-/*
-   সার্ভারের একটি নির্দিষ্ট পেজে সংযোগ পরীক্ষা।
-   সার্ভার চালু থাকলে redirect হবে।
-   সার্ভার বন্ধ থাকলে এখানেই থাকবে।
-*/
 function checkServer() {
-
     const loading = document.getElementById("loading");
     const offline = document.getElementById("offline");
 
     loading.style.display = "block";
     offline.style.display = "none";
 
-    const controller = new AbortController();
+    // সার্ভার পেজ সরাসরি খোলার চেষ্টা
+    const testUrl = SERVER + "?check=" + Date.now();
 
-    // সর্বোচ্চ 5 সেকেন্ড অপেক্ষা করবে
-    const timeout = setTimeout(() => {
-        controller.abort();
-    }, 5000);
-
-    fetch(SERVER, {
-        method: "GET",
-        cache: "no-store",
-        signal: controller.signal
-    })
-    .then(response => {
-
-        clearTimeout(timeout);
-
-        if (response.ok) {
-
-            // সার্ভার চালু → মূল Webpage
-            window.location.replace(SERVER);
-
-        } else {
-
-            // সার্ভার উত্তর দিয়েছে কিন্তু সমস্যা আছে
-            showOffline();
-        }
-    })
-    .catch(error => {
-
-        clearTimeout(timeout);
-
-        // সার্ভারে সংযোগ করা যায়নি
-        showOffline();
-    });
+    window.location.href = testUrl;
 }
 
 function showOffline() {
-
     document.getElementById("loading").style.display = "none";
     document.getElementById("offline").style.display = "block";
 }
-
-checkServer();
-
 </script>
 
 </body>
