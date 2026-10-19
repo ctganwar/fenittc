@@ -84,9 +84,8 @@
 
 
 <script>
-const SERVER = "https://anwar.tail6ab506.ts.net:10000";
-const HEALTH_URL = SERVER + "/health";
-const CERTIFICATE_URL = SERVER + "/certificate";
+const SERVER = "https://anwar.tail6ab506.ts.net:10000/";
+const HEALTH_URL = SERVER + "health";
 
 async function checkServer() {
     const loading = document.getElementById("loading");
@@ -100,7 +99,6 @@ async function checkServer() {
 
     try {
         const response = await fetch(HEALTH_URL, {
-            method: "GET",
             cache: "no-store",
             signal: controller.signal
         });
@@ -115,13 +113,13 @@ async function checkServer() {
             throw new Error("Health check failed");
         }
 
-        window.location.replace(CERTIFICATE_URL);
+        // সার্ভার সচল হলে মূল সার্টিফিকেট পেজে যাবে
+        window.location.replace(SERVER);
 
     } catch (error) {
-        console.error("Server check:", error);
+        console.error("SICIP server check failed:", error);
         loading.style.display = "none";
         offline.style.display = "block";
-
     } finally {
         clearTimeout(timeout);
     }
@@ -129,6 +127,7 @@ async function checkServer() {
 
 checkServer();
 </script>
+
 
 
 </body>
