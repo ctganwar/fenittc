@@ -82,27 +82,54 @@
 
 </div>
 
+
 <script>
 const SERVER = "https://anwar.tail6ab506.ts.net:10000";
+const HEALTH_URL = SERVER + "/health";
+const CERTIFICATE_URL = SERVER + "/certificate";
 
-function checkServer() {
+async function checkServer() {
     const loading = document.getElementById("loading");
     const offline = document.getElementById("offline");
 
     loading.style.display = "block";
     offline.style.display = "none";
 
-    // সার্ভার পেজ সরাসরি খোলার চেষ্টা
-    const testUrl = SERVER;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
 
-    window.location.href = testUrl;
+    try {
+        const response = await fetch(HEALTH_URL, {
+            method: "GET",
+            cache: "no-store",
+            signal: controller.signal
+        });
+
+        if (!response.ok) {
+            throw new Error("HTTP " + response.status);
+        }
+
+        const data = await response.json();
+
+        if (data.status !== "ok") {
+            throw new Error("Health check failed");
+        }
+
+        window.location.replace(CERTIFICATE_URL);
+
+    } catch (error) {
+        console.error("Server check:", error);
+        loading.style.display = "none";
+        offline.style.display = "block";
+
+    } finally {
+        clearTimeout(timeout);
+    }
 }
 
-function showOffline() {
-    document.getElementById("loading").style.display = "none";
-    document.getElementById("offline").style.display = "block";
-}
+checkServer();
 </script>
+
 
 </body>
 </html>
